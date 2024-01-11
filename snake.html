@@ -1,0 +1,105 @@
+<canvas id="myCanvas" width="480" height="480" style="border:1px solid #000000;"></canvas>
+
+<script>
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+    var gridSize = 20;
+    var snakeSize = 1;
+    var food;
+    var snake;
+    var speed = 150;
+    var newPos;
+    var appleX;
+    var appleY;
+    var dx = 0;
+    var dy = 0;
+
+    document.addEventListener("keydown", direction);
+
+    function direction(event) {
+        if (event.keyCode == 37 && dx == 0) {
+            dx = -gridSize;
+            dy = 0;
+        }
+        if (event.keyCode == 38 && dy == 0) {
+            dx = 0;
+            dy = -gridSize;
+        }
+        if (event.keyCode == 39 && dx == 0) {
+            dx = gridSize;
+            dy = 0;
+        }
+        if (event.keyCode == 40 && dy == 0) {
+            dx = 0;
+            dy = gridSize;
+        }
+    }
+
+    function createFood() {
+        food = {
+            x: Math.floor(Math.random() * 20) * gridSize,
+            y: Math.floor(Math.random() * 20) * gridSize
+        }
+    }
+
+    function createSnake() {
+        snake = [];
+        for (var i = snakeSize - 1; i >= 0; i--) {
+            snake.push({
+                x: i * gridSize,
+                y: 0
+            });
+        }
+    }
+
+    function checkGame() {
+        if (snake[0].x === food.x && snake[0].y === food.y) {
+            snakeSize++;
+            createFood();
+        }
+        if (snake[0].x > c.width || snake[0].x < 0 || snake[0].y > c.height || snake[0].y < 0) {
+            alert("Game Over!");
+            clearInterval(game);
+        }
+        for (var i = 1; i < snake.length; i++) {
+            if (snake[0].x === snake[i].x && snake[0].y === snake[i].y) {
+                alert("Game Over!");
+                clearInterval(game);
+            }
+        }
+    }
+
+    function gameLoop() {
+        updateGame();
+        drawGame();
+        checkGame();
+    }
+
+    function updateGame() {
+        newPos = {
+            x: snake[0].x + dx,
+            y: snake[0].y + dy
+        }
+        snake.unshift(newPos);
+        if (snake[0].x === food.x && snake[0].y === food.y) {
+            createFood();
+        } else {
+            snake.pop();
+        }
+    }
+
+    function drawGame() {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.fillStyle = "black";
+        ctx.fillRect(food.x, food.y, gridSize, gridSize);
+        for (var i = 0; i < snake.length; i++) {
+            ctx.fillStyle = "green";
+            ctx.fillRect(snake[i].x, snake[i].y, gridSize, gridSize);
+        }
+    }
+
+    createFood();
+    createSnake();
+    var game = setInterval(gameLoop, speed);
+</script>
